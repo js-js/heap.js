@@ -82,6 +82,25 @@ describe('Entities', function() {
         ]);
       });
 
+      it('should overwrite value', function() {
+        var o = h.allocObject(32);
+        o.set(h.allocString('key1'), 1);
+        o.set(h.allocString('key1'), 2);
+        o.set(h.allocString('key1'), 3);
+        o.set(h.allocString('key1'), 4);
+
+        var pairs = [];
+        o.iterate(function(key, val) {
+          pairs.push({ key: key.toString(), value: val });
+        });
+        pairs.sort(function(a, b) {
+          return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
+        });
+        assert.deepEqual(pairs, [
+          { key: 'key1', value: 4 }
+        ]);
+      });
+
       it('should grow', function() {
         var o = h.allocObject(2);
         o.set(h.allocString('key1'), 1);
