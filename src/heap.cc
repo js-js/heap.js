@@ -81,9 +81,25 @@ NAN_METHOD(ReadTagged) {
 }
 
 
+NAN_METHOD(IsSame) {
+  NanScope();
+
+  if (args.Length() < 2 || !args[0]->IsObject() || !args[1]->IsObject())
+    return NanThrowError("Missing args: compare(a, b)");
+
+  Local<Object> a = args[0].As<Object>();
+  Local<Object> b = args[1].As<Object>();
+
+  NanReturnValue(NanNew(Buffer::Data(a) == Buffer::Data(b)));
+}
+
+
 static void Initialize(Handle<Object> target) {
+  target->Set(NanNew("ptrSize"), NanNew<Number, uint32_t>(sizeof(uint64_t)));
+
   NODE_SET_METHOD(target, "writeTagged", WriteTagged);
   NODE_SET_METHOD(target, "readTagged", ReadTagged);
+  NODE_SET_METHOD(target, "isSame", IsSame);
 }
 
 NODE_MODULE(heap, Initialize);
