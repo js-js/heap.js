@@ -38,8 +38,8 @@ describe('Entities', function() {
     describe('.set()/.get()', function() {
       it('should store/load single untagged property', function() {
         var o = h.allocObject(32);
-        o.set(h.allocString('key'), 123);
-        assert.equal(o.get(h.allocString('key')), 123);
+        o.set(h.allocString('key'), h.smi(123));
+        assert.equal(o.get(h.allocString('key')).value(), 123);
       });
 
       it('should store/load single tagged property', function() {
@@ -50,26 +50,26 @@ describe('Entities', function() {
 
       it('should store/load multiple untagged properties', function() {
         var o = h.allocObject(32);
-        o.set(h.allocString('key1'), 1);
-        o.set(h.allocString('key2'), 2);
-        o.set(h.allocString('key3'), 3);
-        o.set(h.allocString('key4'), 4);
-        assert.equal(o.get(h.allocString('key1')), 1);
-        assert.equal(o.get(h.allocString('key2')), 2);
-        assert.equal(o.get(h.allocString('key3')), 3);
-        assert.equal(o.get(h.allocString('key4')), 4);
+        o.set(h.allocString('key1'), h.smi(1));
+        o.set(h.allocString('key2'), h.smi(2));
+        o.set(h.allocString('key3'), h.smi(3));
+        o.set(h.allocString('key4'), h.smi(4));
+        assert.equal(o.get(h.allocString('key1')).value(), 1);
+        assert.equal(o.get(h.allocString('key2')).value(), 2);
+        assert.equal(o.get(h.allocString('key3')).value(), 3);
+        assert.equal(o.get(h.allocString('key4')).value(), 4);
       });
 
       it('should iterate', function() {
         var o = h.allocObject(32);
-        o.set(h.allocString('key1'), 1);
-        o.set(h.allocString('key2'), 2);
-        o.set(h.allocString('key3'), 3);
-        o.set(h.allocString('key4'), 4);
+        o.set(h.allocString('key1'), h.smi(1));
+        o.set(h.allocString('key2'), h.smi(2));
+        o.set(h.allocString('key3'), h.smi(3));
+        o.set(h.allocString('key4'), h.smi(4));
 
         var pairs = [];
         o.iterate(function(key, val) {
-          pairs.push({ key: key.toString(), value: val });
+          pairs.push({ key: key.toString(), value: val.value() });
         });
         pairs.sort(function(a, b) {
           return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
@@ -84,14 +84,14 @@ describe('Entities', function() {
 
       it('should overwrite value', function() {
         var o = h.allocObject(32);
-        o.set(h.allocString('key1'), 1);
-        o.set(h.allocString('key1'), 2);
-        o.set(h.allocString('key1'), 3);
-        o.set(h.allocString('key1'), 4);
+        o.set(h.allocString('key1'), h.smi(1));
+        o.set(h.allocString('key1'), h.smi(2));
+        o.set(h.allocString('key1'), h.smi(3));
+        o.set(h.allocString('key1'), h.smi(4));
 
         var pairs = [];
         o.iterate(function(key, val) {
-          pairs.push({ key: key.toString(), value: val });
+          pairs.push({ key: key.toString(), value: val.value() });
         });
         pairs.sort(function(a, b) {
           return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
@@ -103,14 +103,14 @@ describe('Entities', function() {
 
       it('should grow', function() {
         var o = h.allocObject(2);
-        o.set(h.allocString('key1'), 1);
-        o.set(h.allocString('key2'), 2);
-        o.set(h.allocString('key3'), 3);
-        o.set(h.allocString('key4'), 4);
-        assert.equal(o.get(h.allocString('key1')), 1);
-        assert.equal(o.get(h.allocString('key2')), 2);
-        assert.equal(o.get(h.allocString('key3')), 3);
-        assert.equal(o.get(h.allocString('key4')), 4);
+        o.set(h.allocString('key1'), h.smi(1));
+        o.set(h.allocString('key2'), h.smi(2));
+        o.set(h.allocString('key3'), h.smi(3));
+        o.set(h.allocString('key4'), h.smi(4));
+        assert.equal(o.get(h.allocString('key1')).value(), 1);
+        assert.equal(o.get(h.allocString('key2')).value(), 2);
+        assert.equal(o.get(h.allocString('key3')).value(), 3);
+        assert.equal(o.get(h.allocString('key4')).value(), 4);
       });
     });
   });

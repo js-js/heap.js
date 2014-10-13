@@ -90,7 +90,7 @@ NAN_METHOD(IsSame) {
   if (args.Length() < 2 ||
       !Buffer::HasInstance(args[0]) ||
       !Buffer::HasInstance(args[1])) {
-    return NanThrowError("Missing args: compare(a, b)");
+    return NanThrowError("Missing args: isSame(a, b)");
   }
 
   Local<Object> a = args[0].As<Object>();
