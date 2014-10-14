@@ -9,6 +9,9 @@ using v8::Number;
 using v8::Object;
 using v8::Uint32;
 
+static const int kPointerSize = sizeof(uint64_t);
+static const int kAlign = 2 * sizeof(uint64_t);
+
 NAN_METHOD(WriteTagged) {
   NanScope();
 
@@ -100,52 +103,101 @@ NAN_METHOD(IsSame) {
 }
 
 
-NAN_METHOD(HasMark) {
-  NanEscapableScope();
+static uint64_t* GetMarkingWord(char* ptr,
+                                int page_size,
+                                int bit_count,
+                                int* shift) {
+  int bitfield_size = page_size * bit_count / (kPointerSize * kPointerSize);
+  uint64_t raw_ptr = reinterpret_cast<intptr_t>(ptr);
 
-  if (args.Length() < 1 || !Buffer::HasInstance(args[0]))
-    return NanThrowError("Missing args: hasMark(obj)");
+  uint64_t bitfield = raw_ptr & ~(page_size - 1);
+  uint64_t page = bitfield + bitfield_size;
+  if ((page & (kAlign - 1)) != 0) {
+    page |= (kAlign - 1);
+    page++;
+  }
 
-  Local<Object> buf = args[0].As<Object>();
-  uint64_t map = *reinterpret_cast<uint64_t*>(Buffer::Data(buf));
-  if ((map & 0x8000000000000000LLU) == 0)
-    NanReturnValue(NanNew(false));
-
-  map &= 0x7fffffffffffffffLLU;
-  return NanEscapeScope(NanNewBufferHandle(
-      reinterpret_cast<char*>(static_cast<intptr_t>(map)),
-      8));
+  uint64_t bit_off = (raw_ptr - page) * bit_count / kPointerSize;
+  *shift = bit_off & (kPointerSize - 1);
+  return &reinterpret_cast<uint64_t*>(bitfield)[bit_off / kPointerSize];
 }
 
 
-NAN_METHOD(Mark) {
-  NanScope();
+NAN_METHOD(ReadMark) {
+  NanEscapableScope();
 
-  if (args.Length() < 2 ||
+  if (args.Length() < 3 ||
       !Buffer::HasInstance(args[0]) ||
-      !Buffer::HasInstance(args[1])) {
-    return NanThrowError("Missing args: mark(dst, src)");
+      !args[1]->IsNumber() ||
+      !args[2]->IsNumber()) {
+    return NanThrowError("Missing args: readMark(obj, pageSize, bitCount)");
   }
 
-  Local<Object> dst = args[0].As<Object>();
-  uint64_t src = reinterpret_cast<intptr_t>(Buffer::Data(args[0].As<Object>()));
-  if ((src & 1) != 0)
-    return NanThrowError("The source pointer is not aligned");
-  src |= 0x8000000000000001LLU;
+  Local<Object> buf = args[0].As<Object>();
+  uint64_t page_size = args[1]->Uint32Value();
+  uint32_t bit_count = args[2]->Uint32Value();
 
-  *reinterpret_cast<uint64_t*>(Buffer::Data(dst)) = src;
+  if ((page_size & (~(page_size - 1))) != page_size)
+    return NanThrowError("Page size is not a power of two");
+
+  int shift;
+  uint64_t* word =
+      GetMarkingWord(Buffer::Data(buf), page_size, bit_count, &shift);
+
+  uint64_t res = *word;
+  res >>= shift;
+  res &= (1 << bit_count) - 1;
+
+  Local<Number> result = NanNew<Number, uint32_t>(res);
+  return NanEscapeScope(result);
+}
+
+
+NAN_METHOD(WriteMark) {
+  NanScope();
+
+  if (args.Length() < 4 ||
+      !Buffer::HasInstance(args[0]) ||
+      !args[1]->IsNumber() ||
+      !args[2]->IsNumber() ||
+      !args[3]->IsNumber()) {
+    return NanThrowError(
+        "Missing args: writeMark(obj, mark, pageSize, bitCount)");
+  }
+
+  Local<Object> buf = args[0].As<Object>();
+  uint32_t mark = args[1]->Uint32Value();
+  uint64_t page_size = args[2]->Uint32Value();
+  uint32_t bit_count = args[3]->Uint32Value();
+
+  if ((page_size & (~(page_size - 1))) != page_size)
+    return NanThrowError("Page size is not a power of two");
+
+  int shift;
+  uint64_t* word =
+      GetMarkingWord(Buffer::Data(buf), page_size, bit_count, &shift);
+
+  uint64_t res = *word;
+
+  // Mask out any previous marking bits
+  res &= ~(((1 << bit_count) - 1) << shift);
+
+  // Set new value
+  *word = res | (mark << shift);
+
   NanReturnUndefined();
 }
 
 
 static void Initialize(Handle<Object> target) {
-  target->Set(NanNew("ptrSize"), NanNew<Number, uint32_t>(sizeof(uint64_t)));
+  target->Set(NanNew("ptrSize"), NanNew<Number, uint32_t>(kPointerSize));
+  target->Set(NanNew("align"), NanNew<Number, uint32_t>(kAlign));
 
   NODE_SET_METHOD(target, "writeTagged", WriteTagged);
   NODE_SET_METHOD(target, "readTagged", ReadTagged);
   NODE_SET_METHOD(target, "isSame", IsSame);
-  NODE_SET_METHOD(target, "hasMark", HasMark);
-  NODE_SET_METHOD(target, "mark", Mark);
+  NODE_SET_METHOD(target, "readMark", ReadMark);
+  NODE_SET_METHOD(target, "writeMark", WriteMark);
 }
 
 NODE_MODULE(heap, Initialize);

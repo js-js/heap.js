@@ -20,8 +20,6 @@ describe('GC', function() {
         obj.set(h.allocString('key'), old);
         obj.set(h.allocString('key'), h.allocString('alright'));
 
-        scope.add(obj);
-
         h.gc();
       });
     });
