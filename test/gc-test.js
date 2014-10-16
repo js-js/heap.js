@@ -23,12 +23,8 @@ describe('GC', function() {
           obj.set(key, h.allocString('alright'));
         });
 
-        h.scope(function() {
-          console.log('object:', obj.ptr().toString('hex'));
-          console.log('hashmap:', obj.hashmap().ptr().toString('hex'));
-        });
-        h.gc();
-        console.log(obj.get(h.allocString('key')).toString());
+        assert(h.gc());
+        assert.equal(obj.get(h.allocString('key')).toString(), 'alright');
       });
     });
   });
