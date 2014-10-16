@@ -29,4 +29,19 @@ describe('Heap', function() {
       assert.equal(o.hashmap().size(), 64);
     });
   });
+
+  describe('.allocCode()', function() {
+    it('should allocate code', function() {
+      var c = h.allocCode(new Buffer([ 1, 2, 3 ]), [ 0, 8, 16 ]);
+      assert.equal(c.size(), heap.ptrSize);
+    });
+  });
+
+  describe('.allocFunction()', function() {
+    it('should allocate function', function() {
+      var c = h.allocCode(new Buffer([ 1, 2, 3 ]), [ 0, 8, 16 ]);
+      var fn = h.allocFunction(c);
+      assert.equal(fn.code().ptr().toString('hex'), c.ptr().toString('hex'));
+    });
+  });
 });

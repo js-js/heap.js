@@ -114,4 +114,29 @@ describe('Entities', function() {
       });
     });
   });
+
+  describe('Code', function() {
+    describe('.size()', function() {
+      it('should return aligned size of the code', function() {
+        var s = h.allocCode(new Buffer(3), []);
+        assert.equal(s.size(), heap.ptrSize);
+      });
+    });
+
+    describe('.offsetCount()', function() {
+      it('should return number of offsets', function() {
+        var s = h.allocCode(new Buffer(3), [ 0, 8, 16, 24, 32 ]);
+        assert.equal(s.offsetCount(), 5);
+      });
+    });
+
+    describe('.offsets()', function() {
+      it('should return offsets', function() {
+        var s = h.allocCode(new Buffer(3), [ 0, 8, 16, 24, 32 ]);
+        assert.deepEqual(s.offsets(), [
+          0, 8, 16, 24, 32
+        ]);
+      });
+    });
+  });
 });
