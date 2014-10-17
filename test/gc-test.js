@@ -27,5 +27,26 @@ describe('GC', function() {
         assert.equal(obj.get(h.allocString('key')).toString(), 'alright');
       });
     });
+
+    it('should collect code garbage', function() {
+      h.scope(function(scope) {
+        var buf = new Buffer(59);
+
+        h.scope(function() {
+          var obj = h.allocObject(4);
+          obj.set(h.allocString('a'), obj);
+          obj.set(h.allocString('b'), h.allocString('c'));
+          obj.set(h.allocString('parent'), obj);
+
+          heap.binding.writeTagged(buf, obj.deref(), heap.ptrSize);
+        });
+        var code = h.allocCode(buf, [ heap.ptrSize ]);
+
+        assert(h.gc());
+        var slot = code.readSlot(code.offsets()[0]);
+        assert.equal(h.cast(slot).get(h.allocString('b')).toString(),
+                     'c');
+      });
+    });
   });
 });
