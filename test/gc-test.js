@@ -9,10 +9,10 @@ describe('GC', function() {
 
   describe('heap.gc()', function() {
     it('should collect garbage', function() {
-      h.scope(function(scope) {
-        var obj = h.allocObject(32);
+      h.scope(function() {
+        var obj = h.scope(function() {
+          var obj = h.allocObject(32);
 
-        h.scope(function(scope) {
           var old = h.allocObject(4);
           old.set(h.allocString('a'), old);
           old.set(h.allocString('b'), h.allocString('c'));
@@ -21,6 +21,8 @@ describe('GC', function() {
           obj.set(h.allocString('key'), old);
           var key = h.allocString('key');
           obj.set(key, h.allocString('alright'));
+
+          return obj;
         });
 
         assert(h.gc());
@@ -30,10 +32,10 @@ describe('GC', function() {
     });
 
     it('should collect code garbage', function() {
-      h.scope(function(scope) {
+      h.scope(function() {
         var buf = new Buffer(59);
 
-        h.scope(function() {
+        var code = h.scope(function() {
           var obj = h.allocObject(4);
           obj.set(h.allocString('a'), obj);
           var c = h.allocString('c');
@@ -41,8 +43,9 @@ describe('GC', function() {
           obj.set(h.allocString('parent'), obj);
 
           heap.binding.writeTagged(buf, obj.deref(), heap.ptrSize);
+
+          return h.allocCode(buf, [ heap.ptrSize ]);
         });
-        var code = h.allocCode(buf, [ heap.ptrSize ]);
 
         assert(h.gc());
         var slot = code.readSlot(code.offsets()[0]).cast();
