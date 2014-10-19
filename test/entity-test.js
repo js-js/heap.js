@@ -1,5 +1,6 @@
 var assert = require('assert');
 var heap = require('../');
+var jit = require('jit.js');
 
 describe('Entities', function() {
   var h;
@@ -136,6 +137,26 @@ describe('Entities', function() {
         assert.deepEqual(s.offsets(), [
           0, 8, 16, 24, 32
         ]);
+      });
+    });
+  });
+
+  describe('Function', function() {
+    describe('.call()', function() {
+      it('should invoke assembly code', function() {
+        var code = jit.generate(function() {
+          this.Proc(function() {
+            assert.equal(this.arch, 'x64');
+            this.mov('rax', 'rsi');
+            this.Return();
+          });
+        });
+        var c = h.allocCode(code.buffer, []);
+        code.resolve(c.deref());
+
+        var fn = h.allocFunction(c);
+        var r = fn.call([ h.allocString('hello'), h.allocString('ohai') ]);
+        assert.equal(r.cast().toString(), 'ohai');
       });
     });
   });

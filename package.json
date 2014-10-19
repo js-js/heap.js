@@ -29,6 +29,7 @@
     "nan": "^1.3.0"
   },
   "devDependencies": {
+    "jit.js": "^0.7.1",
     "mocha": "^1.21.5"
   }
 }
