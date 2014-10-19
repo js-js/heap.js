@@ -36,7 +36,8 @@ describe('GC', function() {
         h.scope(function() {
           var obj = h.allocObject(4);
           obj.set(h.allocString('a'), obj);
-          obj.set(h.allocString('b'), h.allocString('c'));
+          var c = h.allocString('c');
+          obj.set(h.allocString('b'), c);
           obj.set(h.allocString('parent'), obj);
 
           heap.binding.writeTagged(buf, obj.deref(), heap.ptrSize);
@@ -44,9 +45,9 @@ describe('GC', function() {
         var code = h.allocCode(buf, [ heap.ptrSize ]);
 
         assert(h.gc());
-        var slot = code.readSlot(code.offsets()[0]);
-        assert.equal(h.cast(slot).get(h.allocString('b')).cast().toString(),
-                     'c');
+        var slot = code.readSlot(code.offsets()[0]).cast();
+        var val = slot.get(h.allocString('b'));
+        assert.equal(val.cast().toString(), 'c');
       });
     });
   });
