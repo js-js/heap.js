@@ -59,8 +59,7 @@ describe('Heap', function() {
     it('should allocate context', function() {
       var c = h.allocContext();
 
-      assert(c.global().isSame(h.global));
-      assert(c.self().isSame(h.global));
+      assert(c.global().isSame(c.self()));
       assert.equal(c.fn().cast(), null);
     });
   });
