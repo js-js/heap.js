@@ -14,6 +14,16 @@ describe('Heap', function() {
     });
   });
 
+  describe('.allocBoolean()', function() {
+    it('should allocate boolean', function() {
+      var d = h.allocBoolean(true);
+      assert.equal(d.value(), true);
+
+      var d = h.allocBoolean(false);
+      assert.equal(d.value(), false);
+    });
+  });
+
   describe('.allocString()', function() {
     it('should allocate string', function() {
       var s = h.allocString('hello world');
