@@ -138,6 +138,13 @@ describe('Entities', function() {
           0, 8, 16, 24, 32
         ]);
       });
+
+      it('should support unaligned offsets', function() {
+        var s = h.allocCode(new Buffer(3), [ 0, 1, 2, 3, 4, 5 ]);
+        assert.deepEqual(s.offsets(), [
+          0, 1, 2, 3, 4, 5
+        ]);
+      });
     });
   });
 
