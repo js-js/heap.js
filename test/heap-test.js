@@ -54,4 +54,14 @@ describe('Heap', function() {
       assert.equal(fn.code().ptr().toString('hex'), c.ptr().toString('hex'));
     });
   });
+
+  describe('.allocContext()', function() {
+    it('should allocate context', function() {
+      var c = h.allocContext();
+
+      assert(c.global().isSame(h.global));
+      assert(c.self().isSame(h.global));
+      assert.equal(c.fn().cast(), null);
+    });
+  });
 });
