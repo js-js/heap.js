@@ -154,7 +154,7 @@ describe('Entities', function() {
         var code = jit.generate(function() {
           this.Proc(function() {
             assert.equal(this.arch, 'x64');
-            this.mov('rax', 'rsi');
+            this.mov('rax', 'rdx');
             this.Return();
           });
         });
@@ -162,7 +162,10 @@ describe('Entities', function() {
         code.resolve(c.deref());
 
         var fn = h.allocFunction(c);
-        var r = fn.call([ h.allocString('hello'), h.allocString('ohai') ]);
+        var r = fn.call(null, [
+          h.allocString('hello'),
+          h.allocString('ohai')
+        ]);
         assert.equal(r.cast().toString(), 'ohai');
       });
 
@@ -188,7 +191,7 @@ describe('Entities', function() {
         var code = jit.generate(function() {
           this.Proc(function() {
             assert.equal(this.arch, 'x64');
-            this.mov('rax', 'rsi');
+            this.mov('rax', 'rdx');
             this.Return();
           });
         });
@@ -196,7 +199,10 @@ describe('Entities', function() {
         code.resolve(c.deref());
 
         var fn = h.allocFunction(c);
-        var r = fn.call([ h.allocString('hello'), h.allocString('ohai') ]);
+        var r = fn.call(h.allocObject(32), [
+          h.allocString('hello'),
+          h.allocString('ohai')
+        ]);
         assert.equal(r.cast().toString(), 'ohai');
       });
     });
