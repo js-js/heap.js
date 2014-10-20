@@ -165,6 +165,40 @@ describe('Entities', function() {
         var r = fn.call([ h.allocString('hello'), h.allocString('ohai') ]);
         assert.equal(r.cast().toString(), 'ohai');
       });
+
+      it('should invoke assembly code via wrapper', function() {
+        var wrapper = jit.compile(function() {
+          this.Proc(function() {
+            assert.equal(this.arch, 'x64');
+
+            this.spill([ 'rbx', 'r12', 'r13', 'r14', 'r15' ], function() {
+              // Shift args
+              this.mov('rax', 'rdi');
+              this.mov('rdi', 'rsi');
+              this.mov('rsi', 'rdx');
+              this.mov('rdx', 'rcx');
+
+              this.call('rax');
+            });
+            this.Return();
+          });
+        })._buffer;
+        var h = heap.create({ callWrapper: wrapper });
+
+        var code = jit.generate(function() {
+          this.Proc(function() {
+            assert.equal(this.arch, 'x64');
+            this.mov('rax', 'rsi');
+            this.Return();
+          });
+        });
+        var c = h.allocCode(code.buffer, []);
+        code.resolve(c.deref());
+
+        var fn = h.allocFunction(c);
+        var r = fn.call([ h.allocString('hello'), h.allocString('ohai') ]);
+        assert.equal(r.cast().toString(), 'ohai');
+      });
     });
   });
 });

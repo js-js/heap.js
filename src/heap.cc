@@ -232,7 +232,7 @@ NAN_METHOD(Call) {
   }
 
   intptr_t res;
-  switch (args.Length()) {
+  switch (arr->Length()) {
     case 0:
       res = reinterpret_cast<Cb0>(code)();
       break;
