@@ -260,9 +260,42 @@ NAN_METHOD(Call) {
         DontDealloc,
         NULL));
   } else {
-    Local<Int32> n = NanNew<Int32, uint32_t>(res >> 1);
+    Local<Int32> n = NanNew<Int32, int32_t>(res >> 1);
     return NanEscapeScope(n);
   }
+}
+
+
+NAN_METHOD(PointerAdd) {
+  NanEscapableScope();
+
+  if (args.Length() < 3 ||
+      !Buffer::HasInstance(args[0]) ||
+      !Buffer::HasInstance(args[1]) ||
+      !args[2]->IsNumber()) {
+    return NanThrowError(
+        "Missing args: pointerAdd(pos, limit, size)");
+  }
+
+  intptr_t* pos = reinterpret_cast<intptr_t*>(Buffer::Data(args[0]));
+  intptr_t* limit = reinterpret_cast<intptr_t*>(Buffer::Data(args[1]));
+  int32_t size = args[2]->Int32Value();
+
+  if (*pos + size > *limit)
+    return NanFalse();
+
+  intptr_t res = *pos;
+  assert(res & kTagPointer);
+  res ^= kTagPointer;
+  *pos += size;
+  if (size % kAlign != 0)
+    *pos += kAlign - size % kAlign;
+
+  return NanEscapeScope(NanNewBufferHandle(
+      reinterpret_cast<char*>(res),
+      size,
+      DontDealloc,
+      NULL));
 }
 
 
@@ -280,6 +313,7 @@ static void Initialize(Handle<Object> target) {
   NODE_SET_METHOD(target, "readMark", ReadMark);
   NODE_SET_METHOD(target, "writeMark", WriteMark);
   NODE_SET_METHOD(target, "call", Call);
+  NODE_SET_METHOD(target, "pointerAdd", PointerAdd);
 }
 
 NODE_MODULE(heap, Initialize);
