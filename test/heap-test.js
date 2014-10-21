@@ -60,7 +60,7 @@ describe('Heap', function() {
       var c = h.allocContext();
 
       assert(c.global().isSame(c.self()));
-      assert.equal(c.fn().cast(), null);
+      assert(h.isHole(c.fn()));
     });
   });
 });
