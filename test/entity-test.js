@@ -212,4 +212,15 @@ describe('Entities', function() {
       });
     });
   });
+
+  describe('Smi', function() {
+    describe('.coerceTo()', function() {
+      it('should coerce to boolean', function() {
+        var s = h.smi(123);
+        assert.equal(s.coerceTo('boolean').value(), true);
+        var s = h.smi(0);
+        assert.equal(s.coerceTo('boolean').value(), false);
+      });
+    });
+  });
 });
