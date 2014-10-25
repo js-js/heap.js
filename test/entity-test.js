@@ -119,6 +119,16 @@ describe('Entities', function() {
         assert.equal(o.get(h.allocString('key4')).cast().value(), 4);
       });
     });
+
+    describe('.toJSON()', function() {
+      it('should not fail on recursive JSON', function() {
+        var o = h.allocObject(2);
+        o.set(h.allocString('key1'), o);
+        assert.doesNotThrow(function() {
+          o.toJSON()
+        });
+      });
+    });
   });
 
   describe('Code', function() {
