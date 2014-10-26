@@ -212,6 +212,13 @@ NAN_METHOD(Call) {
                           intptr_t,
                           intptr_t,
                           intptr_t);
+  typedef intptr_t (*Cb7)(intptr_t,
+                          intptr_t,
+                          intptr_t,
+                          intptr_t,
+                          intptr_t,
+                          intptr_t,
+                          intptr_t);
 
   if (args.Length() < 2 || !Buffer::HasInstance(args[0]) || !args[1]->IsArray())
     return NanThrowError("Missing args: call(code, args)");
@@ -219,10 +226,10 @@ NAN_METHOD(Call) {
   char* code = Buffer::Data(args[0]);
   Local<Array> arr = args[1].As<Array>();
 
-  if (arr->Length() > 6)
+  if (arr->Length() > 7)
     return NanThrowError("Only args.length <= 6 is supported");
 
-  static intptr_t pargs[6];
+  intptr_t pargs[7];
   for (uint32_t i = 0; i < arr->Length(); i++) {
     Local<Value> arg = arr->Get(i);
     if (Buffer::HasInstance(arg)) {
@@ -262,6 +269,10 @@ NAN_METHOD(Call) {
     case 6:
       res = reinterpret_cast<Cb6>(code)(
           pargs[0], pargs[1], pargs[2], pargs[3], pargs[4], pargs[5]);
+      break;
+    case 7:
+      res = reinterpret_cast<Cb7>(code)(
+          pargs[0], pargs[1], pargs[2], pargs[3], pargs[4], pargs[5], pargs[6]);
       break;
     default:
       abort();
