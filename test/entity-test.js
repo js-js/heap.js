@@ -169,7 +169,7 @@ describe('Entities', function() {
         var code = jit.generate(function() {
           this.Proc(function() {
             assert.equal(this.arch, 'x64');
-            this.mov('rax', 'rdx');
+            this.mov('rax', 'rcx');
             this.Return();
           });
         });
@@ -195,6 +195,7 @@ describe('Entities', function() {
               this.mov('rdi', 'rsi');
               this.mov('rsi', 'rdx');
               this.mov('rdx', 'rcx');
+              this.mov('rcx', 'r8');
 
               this.call('rax');
             });
@@ -206,7 +207,7 @@ describe('Entities', function() {
         var code = jit.generate(function() {
           this.Proc(function() {
             assert.equal(this.arch, 'x64');
-            this.mov('rax', 'rdx');
+            this.mov('rax', 'rcx');
             this.Return();
           });
         });
