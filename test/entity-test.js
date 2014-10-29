@@ -222,6 +222,16 @@ describe('Entities', function() {
         assert.equal(r.cast().toString(), 'ohai');
       });
     });
+
+    describe('.set()/.get()', function() {
+      it('should work like function is an object', function() {
+        var fn = h.allocFunction(h.hole);
+        fn.set(h.allocString('key'), h.allocString('value'));
+
+        var prop = fn.get(h.allocString('key')).cast();
+        assert.equal(prop.toString(), 'value');
+      });
+    });
   });
 
   describe('Smi', function() {
