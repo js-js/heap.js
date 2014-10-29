@@ -1,6 +1,6 @@
 {
   "name": "heap.js",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "description": "Heap implementation for a JIT runtime",
   "main": "lib/heap.js",
   "scripts": {
