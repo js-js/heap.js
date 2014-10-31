@@ -8,6 +8,13 @@ describe('Entities', function() {
     h = heap.create();
   });
 
+  describe('HashMap', function() {
+    it('should export proper shift value', function() {
+      var HM = heap.entities.HashMap;
+      assert.equal(5 << HM.shifts.fieldSize, HM.fieldSize(5));
+    });
+  });
+
   describe('String', function() {
     describe('.isSame()', function() {
       it('should return true on the same ptr', function() {
