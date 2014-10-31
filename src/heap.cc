@@ -14,6 +14,7 @@ using v8::Object;
 using v8::Value;
 
 static const int kPointerSize = sizeof(uint64_t);
+static const int kPointerShift = kPointerSize == 8 ? 3 : 2;
 static const int kAlign = 2 * sizeof(uint64_t);
 static const int kTagShift = 0x1;
 static const int kTagMask = (1 << kTagShift) - 1;
@@ -327,6 +328,7 @@ NAN_METHOD(PointerAdd) {
 
 static void Initialize(Handle<Object> target) {
   target->Set(NanNew("ptrSize"), NanNew<Number, uint32_t>(kPointerSize));
+  target->Set(NanNew("ptrShift"), NanNew<Number, uint32_t>(kPointerShift));
   target->Set(NanNew("align"), NanNew<Number, uint32_t>(kAlign));
   target->Set(NanNew("tagShift"), NanNew<Number, uint32_t>(kTagShift));
   target->Set(NanNew("tagMask"), NanNew<Number, uint32_t>(kTagMask));
