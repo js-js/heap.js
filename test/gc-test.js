@@ -48,6 +48,7 @@ describe('GC', function() {
         });
 
         assert(h.gc());
+        assert(h.gc());
         var slot = code.readSlot(code.offsets()[0]).cast();
         var val = slot.get(h.allocString('b'));
         assert.equal(val.cast().toString(), 'c');
