@@ -73,6 +73,15 @@ describe('Entities', function() {
         assert.equal(o.get(h.allocString('key4')).cast().value(), 4);
       });
 
+      it('should survive max transitions', function() {
+        var o = h.allocObject(32);
+        var max = heap.entities.Map.maxTransitions;
+        for (var i = 0; i < 2 * max; i++)
+          o.set(h.smi(i), h.smi(i));
+
+        assert.equal(o.map().transitionCount(), max);
+      });
+
       it('should iterate', function() {
         var o = h.allocObject(32);
         o.set(h.allocString('key1'), h.smi(1));
