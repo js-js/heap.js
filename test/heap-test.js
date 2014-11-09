@@ -36,7 +36,7 @@ describe('Heap', function() {
   describe('.allocObject()', function() {
     it('should allocate object', function() {
       var o = h.allocObject(64);
-      assert.equal(o.hashmap().size(), 64);
+      assert.equal(o.size(), 64);
     });
   });
 

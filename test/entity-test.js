@@ -8,10 +8,10 @@ describe('Entities', function() {
     h = heap.create();
   });
 
-  describe('HashMap', function() {
+  describe('Field', function() {
     it('should export proper shift value', function() {
-      var HM = heap.entities.HashMap;
-      assert.equal(5 << HM.shifts.fieldSize, HM.fieldSize(5));
+      var Field = heap.entities.Field;
+      assert.equal(5 << Field.shifts.field, Field.fieldSize(5));
     });
   });
 
@@ -76,6 +76,7 @@ describe('Entities', function() {
       it('should survive max transitions', function() {
         var o = h.allocObject(32);
         var max = heap.entities.Map.maxTransitions;
+
         for (var i = 0; i < 2 * max; i++)
           o.set(h.smi(i), h.smi(i));
 
