@@ -54,5 +54,14 @@ describe('GC', function() {
         assert.equal(val.cast().toString(), 'c');
       });
     });
+
+    it('should collect string garbage', function() {
+      h.scope(function() {
+        var s = h.allocString('okay');
+
+        assert(h.gc());
+        s.hash();
+      });
+    });
   });
 });

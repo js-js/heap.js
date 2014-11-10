@@ -39,6 +39,14 @@ describe('Entities', function() {
         var s2 = h.allocDouble(123.456);
         assert(!s1.isSame(s2));
       });
+
+      it('should cache hash value', function() {
+        var s1 = h.allocString('hello world1');
+        var s2 = h.allocString('hello world1');
+        assert.equal(s1.hash(), s1.hash());
+        assert.equal(s1.hash(), s2.hash());
+        assert(s1.isSame(s2));
+      });
     });
   });
 
