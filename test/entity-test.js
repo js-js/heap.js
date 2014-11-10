@@ -137,6 +137,33 @@ describe('Entities', function() {
       });
     });
 
+    describe('transitions', function() {
+      it('should transition to the same map', function() {
+        var a = h.allocObject();
+        var b = h.allocObject();
+        var c = h.allocObject();
+
+        a.set(h.allocString('a'), h.undef);
+        a.set(h.allocString('b'), h.undef);
+        a.set(h.allocString('c'), h.undef);
+
+        b.set(h.allocString('c'), h.undef);
+        b.set(h.allocString('a'), h.undef);
+        assert(!b.map().isSame(a.map()));
+        b.set(h.allocString('b'), h.undef);
+        assert(b.map().isSame(a.map()));
+
+        c.set(h.allocString('b'), h.undef);
+        c.set(h.allocString('a'), h.undef);
+        assert(!c.map().isSame(a.map()));
+        assert(!c.map().isSame(b.map()));
+        c.set(h.allocString('c'), h.undef);
+
+        assert(c.map().isSame(a.map()));
+        assert(c.map().isSame(b.map()));
+      });
+    });
+
     describe('.toJSON()', function() {
       it('should not fail on recursive JSON', function() {
         var o = h.allocObject(2);
