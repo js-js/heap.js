@@ -77,8 +77,17 @@ describe('Entities', function() {
         var o = h.allocObject(32);
         var max = heap.entities.Map.maxTransitions;
 
-        for (var i = 0; i < 2 * max; i++)
+        for (var i = 0; i < max - 1; i++)
           o.set(h.smi(i), h.smi(i));
+
+        var old = o.map();
+        o.set(h.smi(i++), h.smi(i));
+        var next = o.map();
+        assert(!next.isSame(old));
+        assert(!next.canTransition());
+
+        o.set(h.smi(i++), h.smi(i));
+        assert(next.isSame(o.map()));
 
         assert.equal(o.map().transitionCount(), max);
       });
