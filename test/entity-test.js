@@ -244,6 +244,7 @@ describe('Entities', function() {
       it('should work like function is an object', function() {
         var fn = h.allocFunction(h.hole);
         fn.set(h.allocString('key'), h.allocString('value'));
+        assert(fn.map().isFunction());
 
         var prop = fn.get(h.allocString('key')).cast();
         assert.equal(prop.toString(), 'value');
