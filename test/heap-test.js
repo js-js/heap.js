@@ -14,6 +14,22 @@ describe('Heap', function() {
     });
   });
 
+  describe('.allocNumber()', function() {
+    it('should allocate smi or double', function() {
+      var d = h.allocNumber(123.456);
+      assert.equal(d.type, 'double');
+      assert.equal(d.value(), 123.456);
+
+      var d = h.allocNumber(123);
+      assert.equal(d.type, 'smi');
+      assert.equal(d.value(), 123);
+
+      var d = h.allocNumber(0xffffffff);
+      assert.equal(d.type, 'double');
+      assert.equal(d.value(), 0xffffffff);
+    });
+  });
+
   describe('.allocBoolean()', function() {
     it('should allocate boolean', function() {
       var d = h.allocBoolean(true);
@@ -35,8 +51,8 @@ describe('Heap', function() {
 
   describe('.allocObject()', function() {
     it('should allocate object', function() {
-      var o = h.allocObject(64);
-      assert.equal(o.size(), 64);
+      var o = h.allocObject();
+      assert(o.size() > 0);
     });
   });
 
@@ -60,6 +76,23 @@ describe('Heap', function() {
       var c = h.allocContext();
 
       assert(!h.isHole(c.global()));
+    });
+  });
+
+  describe('.fromJSON()', function() {
+    it('should allocate complex object', function() {
+      var obj = {
+        a: 1,
+        b: {
+          c: null,
+          d: undefined,
+          e: 'hello'
+        },
+        c: 123.456
+      };
+      var c = h.fromJSON(obj);
+
+      assert.deepEqual(c.toJSON(), obj);
     });
   });
 });

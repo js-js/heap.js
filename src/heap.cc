@@ -20,6 +20,7 @@ static const int kTagShift = 0x1;
 static const int kTagMask = (1 << kTagShift) - 1;
 static const int kTagPointer = 0x1;
 static const int kTagSmi = 0x0;
+static const int kSmiMask = 0x7fffffff;
 
 NAN_METHOD(WriteTagged) {
   NanScope();
@@ -41,7 +42,7 @@ NAN_METHOD(WriteTagged) {
     tagged_src |= 1;
   } else {
     tagged_src = args[1]->Int32Value();
-    if ((tagged_src & 0x7fffffff) != tagged_src)
+    if ((tagged_src & kSmiMask) != tagged_src)
       return NanThrowError("Too big number to be tagged");
     tagged_src <<= 1;
   }
@@ -76,7 +77,7 @@ NAN_METHOD(ReadTagged) {
 
   // Untagged
   if ((res & kTagMask) == kTagSmi) {
-    if ((res & 0xffffffff) != res)
+    if ((res & ((kSmiMask << 1) | kTagMask)) != res)
       return NanThrowError("Invalid untagged number");
 
     Local<Int32> n = NanNew<Int32, uint32_t>(res >> 1);
@@ -334,6 +335,7 @@ static void Initialize(Handle<Object> target) {
   target->Set(NanNew("tagMask"), NanNew<Number, uint32_t>(kTagMask));
   target->Set(NanNew("tagPointer"), NanNew<Number, uint32_t>(kTagPointer));
   target->Set(NanNew("tagSmi"), NanNew<Number, uint32_t>(kTagSmi));
+  target->Set(NanNew("smiMask"), NanNew<Number, uint32_t>(kSmiMask));
 
   NODE_SET_METHOD(target, "writeTagged", WriteTagged);
   NODE_SET_METHOD(target, "readTagged", ReadTagged);
