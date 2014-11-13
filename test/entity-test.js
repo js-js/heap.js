@@ -143,10 +143,10 @@ describe('Entities', function() {
 
       it('should grow', function() {
         var o = h.allocObject(2);
-        o.set(h.allocString('key1'), h.smi(1));
-        o.set(h.allocString('key2'), h.smi(2));
-        o.set(h.allocString('key3'), h.smi(3));
-        o.set(h.allocString('key4'), h.smi(4));
+
+        for (var i = 0; i < 10 * heap.entities.Object.minSize; i++)
+          o.set(h.allocString('key' + i), h.smi(i));
+
         assert.equal(o.get(h.allocString('key1')).cast().value(), 1);
         assert.equal(o.get(h.allocString('key2')).cast().value(), 2);
         assert.equal(o.get(h.allocString('key3')).cast().value(), 3);
@@ -178,6 +178,17 @@ describe('Entities', function() {
 
         assert(c.map().isSame(a.map()));
         assert(c.map().isSame(b.map()));
+      });
+
+      it('should always transition global', function() {
+        var g = h.allocGlobal();
+
+        var max = heap.entities.Map.maxTransitions;
+        for (var i = 0; i < 10 * max; i++) {
+          var prev = g.map();
+          g.set(h.smi(i), h.smi(i));
+          assert(!prev.isSame(g.map()));
+        }
       });
     });
 
