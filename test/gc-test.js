@@ -65,7 +65,7 @@ describe('GC', function() {
         assert(other.isSame(slot));
 
         var other = code.readSlot(code.weakOffsets()[1]).cast();
-        assert(h.isHole(other));
+        assert(other.isHole());
       });
     });
 
@@ -95,8 +95,8 @@ describe('GC', function() {
         alive = alive.copy(weak);
 
         assert(h.gc());
-        assert(h.isHole(dead));
-        assert(!h.isHole(alive));
+        assert(dead.isHole());
+        assert(!alive.isHole());
       });
     });
   });

@@ -75,7 +75,7 @@ describe('Heap', function() {
     it('should allocate context', function() {
       var c = h.allocContext();
 
-      assert(!h.isHole(c.global()));
+      assert(!c.global().isHole());
     });
   });
 
