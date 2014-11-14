@@ -42,9 +42,17 @@ describe('GC', function() {
           obj.set(h.allocString('b'), c);
           obj.set(h.allocString('parent'), obj);
 
+          var dead = h.allocObject();
           heap.binding.writeTagged(buf, obj.deref(), heap.ptrSize);
+          heap.binding.writeTagged(buf, obj.deref(), 2 * heap.ptrSize);
+          heap.binding.writeTagged(buf, dead.deref(), 3 * heap.ptrSize);
 
-          return h.allocCode(buf, [ heap.ptrSize ]);
+          return h.allocCode(buf, [
+            heap.ptrSize
+          ], [
+            2 * heap.ptrSize,
+            3 * heap.ptrSize
+          ]);
         });
 
         assert(h.gc());
@@ -52,6 +60,12 @@ describe('GC', function() {
         var slot = code.readSlot(code.offsets()[0]).cast();
         var val = slot.get(h.allocString('b'));
         assert.equal(val.cast().toString(), 'c');
+
+        var other = code.readSlot(code.weakOffsets()[0]).cast();
+        assert(other.isSame(slot));
+
+        var other = code.readSlot(code.weakOffsets()[1]).cast();
+        assert(h.isHole(other));
       });
     });
 
