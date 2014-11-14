@@ -54,7 +54,7 @@ describe('Entities', function() {
     describe('.set()/.get()', function() {
       it('should return undefined on get', function() {
         var o = h.allocObject(32);
-        assert(h.isUndef(o.get(h.allocString('key'))));
+        assert(o.get(h.allocString('key')).isUndef());
       });
 
       it('should store/load single untagged property', function() {
