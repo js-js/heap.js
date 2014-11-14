@@ -63,5 +63,27 @@ describe('GC', function() {
         s.hash();
       });
     });
+
+    it('should hole-fy weak references', function() {
+      var weak = h.createScope();
+      weak.weaken();
+      weak.enter();
+
+      h.scope(function() {
+        var dead;
+        var alive = h.scope(function() {
+          dead = h.allocObject();
+          dead.move(weak);
+
+          return h.allocObject();
+        });
+
+        alive = alive.copy(weak);
+
+        assert(h.gc());
+        assert(h.isHole(dead));
+        assert(!h.isHole(alive));
+      });
+    });
   });
 });
