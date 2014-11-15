@@ -233,6 +233,17 @@ describe('Entities', function() {
         ]);
       });
     });
+
+    describe('.references()', function() {
+      it('should return actual references', function() {
+        var code = new Buffer('de7d5b1d00000000', 'hex');
+        var s = h.allocCode(code, [ 0 ]);
+
+        var refs = s.references();
+        assert.equal(refs.length, 1);
+        assert.equal(refs[0].cast().value(), 0xeadbeef);
+      });
+    });
   });
 
   describe('Function', function() {
