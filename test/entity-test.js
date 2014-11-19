@@ -197,8 +197,37 @@ describe('Entities', function() {
         var o = h.allocObject(2);
         o.set(h.allocString('key1'), o);
         assert.doesNotThrow(function() {
-          o.toJSON()
+          o.toJSON();
         });
+      });
+    });
+  });
+
+  describe('Array', function() {
+    describe('.set()/.get()', function() {
+      it('should set dense properties', function() {
+        var a = h.allocArray();
+        a.set(h.smi(0), h.smi(0));
+        a.set(h.smi(1), h.smi(1));
+
+        assert.equal(a.get(h.smi(0)).cast().value(), 0);
+        assert.equal(a.get(h.smi(1)).cast().value(), 1);
+      });
+
+      it('should grow dense array', function() {
+        var a = h.allocArray();
+        a.set(h.smi(128), h.smi(128));
+
+        assert.equal(a.get(h.smi(128)).cast().value(), 128);
+      });
+
+      it('should transition to non-dense array', function() {
+        var a = h.allocArray();
+        assert(a.map().isDenseArray());
+        a.set(h.allocString('wtf'), h.smi(128));
+        assert(!a.map().isDenseArray());
+
+        assert.equal(a.get(h.allocString('wtf')).cast().value(), 128);
       });
     });
   });
