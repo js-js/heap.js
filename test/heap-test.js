@@ -58,8 +58,8 @@ describe('Heap', function() {
 
   describe('.allocCode()', function() {
     it('should allocate code', function() {
-      var c = h.allocCode(new Buffer([ 1, 2, 3 ]), [ 0, 8, 16 ]);
-      assert.equal(c.size(), heap.ptrSize);
+      var c = h.allocCode(new Buffer([ 1, 2, 3 ]), [ 0, 8, 16 ], [ 1, 2, 3 ]);
+      assert.equal(c.size(), 3);
     });
   });
 

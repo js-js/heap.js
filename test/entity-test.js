@@ -205,9 +205,16 @@ describe('Entities', function() {
 
   describe('Code', function() {
     describe('.size()', function() {
+      it('should return non-aligned size of the code', function() {
+        var s = h.allocCode(new Buffer(3), []);
+        assert.equal(s.size(), 3);
+      });
+    });
+
+    describe('.alignedSize()', function() {
       it('should return aligned size of the code', function() {
         var s = h.allocCode(new Buffer(3), []);
-        assert.equal(s.size(), heap.ptrSize);
+        assert.equal(s.alignedSize(), heap.ptrSize);
       });
     });
 
