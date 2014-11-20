@@ -97,6 +97,61 @@ NAN_METHOD(ReadTagged) {
 }
 
 
+NAN_METHOD(WriteInterior) {
+  NanScope();
+
+  if (args.Length() < 4 ||
+      !Buffer::HasInstance(args[0]) ||
+      !Buffer::HasInstance(args[1]) ||
+      !args[2]->IsNumber() ||
+      !args[3]->IsNumber()) {
+    return NanThrowError("Missing args: writeInterior(dst, src, off, ioff)");
+  }
+
+  uint64_t tagged_src;
+  int32_t interior_off = args[3]->Int32Value();
+
+  Local<Object> src = args[1].As<Object>();
+  tagged_src = reinterpret_cast<intptr_t>(Buffer::Data(src));
+  tagged_src += interior_off;
+
+  Local<Object> dst = args[0].As<Object>();
+  uint32_t off = args[2]->Int32Value();
+  memcpy(Buffer::Data(dst) + off,
+         &tagged_src,
+         sizeof(tagged_src));
+
+  NanReturnUndefined();
+}
+
+
+NAN_METHOD(ReadInterior) {
+  NanEscapableScope();
+
+  if (args.Length() < 3 ||
+      !Buffer::HasInstance(args[0]) ||
+      !args[1]->IsNumber() ||
+      !args[2]->IsNumber()) {
+    return NanThrowError("Missing args: readInterior(src, off, ioff)");
+  }
+
+  Local<Object> src = args[0].As<Object>();
+  uint32_t off = args[1]->Int32Value();
+
+  uint64_t res = *reinterpret_cast<uint64_t*>(Buffer::Data(src) + off);
+  int32_t interior_off = args[2]->Int32Value();
+  res -= interior_off;
+
+  // We don't know the length of the buffer ahead of time, so just assume that
+  // it is almost infinite :)
+  return NanEscapeScope(NanNewBufferHandle(
+      reinterpret_cast<char*>(static_cast<intptr_t>(res)),
+      0x3fffffff,
+      DontDealloc,
+      NULL));
+}
+
+
 NAN_METHOD(IsSame) {
   NanScope();
 
@@ -339,6 +394,8 @@ static void Initialize(Handle<Object> target) {
 
   NODE_SET_METHOD(target, "writeTagged", WriteTagged);
   NODE_SET_METHOD(target, "readTagged", ReadTagged);
+  NODE_SET_METHOD(target, "writeInterior", WriteInterior);
+  NODE_SET_METHOD(target, "readInterior", ReadInterior);
   NODE_SET_METHOD(target, "isSame", IsSame);
   NODE_SET_METHOD(target, "readMark", ReadMark);
   NODE_SET_METHOD(target, "writeMark", WriteMark);
