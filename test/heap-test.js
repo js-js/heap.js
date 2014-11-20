@@ -52,7 +52,7 @@ describe('Heap', function() {
   describe('.allocObject()', function() {
     it('should allocate object', function() {
       var o = h.allocObject();
-      assert(o.size() > 0);
+      assert(o.field().size() > 0);
     });
   });
 

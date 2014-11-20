@@ -70,7 +70,7 @@ describe('Entities', function() {
       });
 
       it('should store/load multiple untagged properties', function() {
-        var o = h.allocObject(32);
+        var o = h.allocObject();
         o.set(h.allocString('key1'), h.smi(1));
         o.set(h.allocString('key2'), h.smi(2));
         o.set(h.allocString('key3'), h.smi(3));
@@ -142,10 +142,11 @@ describe('Entities', function() {
       });
 
       it('should grow', function() {
-        var o = h.allocObject(2);
+        var o = h.allocObject();
 
-        for (var i = 0; i < 10 * heap.entities.Object.minSize; i++)
+        for (var i = 0; i < 10 * heap.entities.Object.minSize; i++) {
           o.set(h.allocString('key' + i), h.smi(i));
+        }
 
         assert.equal(o.get(h.allocString('key1')).cast().value(), 1);
         assert.equal(o.get(h.allocString('key2')).cast().value(), 2);
@@ -223,9 +224,9 @@ describe('Entities', function() {
 
       it('should transition to non-dense array', function() {
         var a = h.allocArray();
-        assert(a.map().isDenseArray());
+        assert(a.isDense());
         a.set(h.allocString('wtf'), h.smi(128));
-        assert(!a.map().isDenseArray());
+        assert(!a.isDense());
 
         assert.equal(a.get(h.allocString('wtf')).cast().value(), 128);
       });
