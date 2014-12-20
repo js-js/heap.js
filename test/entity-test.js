@@ -365,4 +365,23 @@ describe('Entities', function() {
       });
     });
   });
+
+  describe('AccessPair', function() {
+    describe('.getter()/.setter()', function() {
+      it('should return hole as default', function() {
+        var p = h.allocAccessPair();
+        assert(p.getter().isHole());
+        assert(p.setter().isHole());
+      });
+
+      it('should return values', function() {
+        var p = h.allocAccessPair({
+          getter: h.allocFunction(h.hole),
+          setter: h.allocFunction(h.hole)
+        });
+        assert.equal(p.getter().cast().type, 'function');
+        assert.equal(p.setter().cast().type, 'function');
+      });
+    });
+  });
 });
