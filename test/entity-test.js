@@ -383,5 +383,97 @@ describe('Entities', function() {
         assert.equal(p.setter().cast().type, 'function');
       });
     });
+
+    describe('placing in object', function() {
+      var acc = new Buffer(heap.ptrSize);
+      var getCode = jit.generate(function() {
+        this.Proc(function() {
+          assert.equal(this.arch, 'x64');
+          this.mov('rax', acc.ref());
+          this.add([ 'rax' ], 1 << heap.tagShift);
+          this.mov('rax', [ 'rax' ]);
+          this.Return();
+        });
+      });
+      var setCode = jit.generate(function() {
+        this.Proc(function() {
+          assert.equal(this.arch, 'x64');
+          this.mov('rax', acc.ref());
+          this.mov([ 'rax' ], 'rdx');
+          this.Return();
+        });
+      });
+
+      it('should invoke getter', function() {
+        acc.fill(0);
+
+        var getter = h.allocFunction(h.allocCode(getCode.buffer));
+        var pair = h.allocAccessPair({
+          getter: getter
+        });
+
+        var o = h.allocObject();
+        var key = h.allocString('key');
+        o.set(key, pair);
+
+        assert.equal(o.get(key).cast().value(), 1);
+        assert.equal(o.get(key).cast().value(), 2);
+      });
+
+      it('should invoke setter', function() {
+        acc.fill(0);
+
+        var getter = h.allocFunction(h.allocCode(getCode.buffer));
+        var setter = h.allocFunction(h.allocCode(setCode.buffer));
+        var pair = h.allocAccessPair({
+          getter: getter,
+          setter: setter
+        });
+
+        var o = h.allocObject();
+        var key = h.allocString('key');
+        o.set(key, pair);
+
+        assert.equal(o.get(key).cast().value(), 1);
+        assert.equal(o.get(key).cast().value(), 2);
+        o.set(key, h.smi(42));
+        assert.equal(o.get(key).cast().value(), 43);
+        assert.equal(o.get(key).cast().value(), 44);
+      });
+
+      it('should work with no getter/setter', function() {
+        var pair = h.allocAccessPair();
+
+        var o = h.allocObject();
+        var key = h.allocString('key');
+        o.set(key, pair);
+
+        assert(o.get(key).isUndef());
+        o.set(key, h.smi(42));
+        assert(o.get(key).isUndef());
+      });
+
+      it('should be enumerable by default', function() {
+        var pair = h.allocAccessPair();
+
+        var o = h.allocObject();
+        var key = h.allocString('key');
+        o.set(key, pair);
+
+        assert.deepEqual(o.toJSON(), { key: undefined });
+      });
+
+      it('should support custom attributes', function() {
+        var pair = h.allocAccessPair({
+          enumerable: false
+        });
+
+        var o = h.allocObject();
+        var key = h.allocString('key');
+        o.set(key, pair);
+
+        assert.deepEqual(o.toJSON(), {});
+      });
+    });
   });
 });
