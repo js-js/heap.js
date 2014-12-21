@@ -305,7 +305,7 @@ describe('Entities', function() {
       });
 
       it('should invoke assembly code via wrapper', function() {
-        var wrapper = jit.compile(function() {
+        var wrapperCode = jit.compile(function() {
           this.Proc(function() {
             assert.equal(this.arch, 'x64');
 
@@ -322,6 +322,14 @@ describe('Entities', function() {
             this.Return();
           });
         })._buffer;
+
+        // NOTE: Old wrapper code
+        function wrapper(code, ctx, self, argv) {
+          argv.unshift(ctx.deref());
+          argv.unshift(self.deref());
+          argv.unshift(code);
+          return heap.binding.call(wrapperCode, argv);
+        }
         var h = heap.create({ callWrapper: wrapper });
 
         var code = jit.generate(function() {
