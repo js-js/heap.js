@@ -324,11 +324,11 @@ describe('Entities', function() {
         })._buffer;
 
         // NOTE: Old wrapper code
-        function wrapper(fn, ctx, self, args) {
+        function wrapper(fn, state, self, args) {
           var argv = args.map(function(arg) {
             return arg.deref();
           });
-          argv.unshift(ctx.deref());
+          argv.unshift(state.deref());
           argv.unshift(self.deref());
           argv.unshift(fn.code().code());
           return heap.binding.call(wrapperCode, argv);

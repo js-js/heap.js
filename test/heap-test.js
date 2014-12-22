@@ -71,9 +71,9 @@ describe('Heap', function() {
     });
   });
 
-  describe('.allocContext()', function() {
-    it('should allocate context', function() {
-      var c = h.allocContext();
+  describe('.allocState()', function() {
+    it('should allocate state', function() {
+      var c = h.allocState();
 
       assert(!c.global().isHole());
     });
