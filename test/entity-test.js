@@ -47,6 +47,13 @@ describe('Entities', function() {
         assert.equal(s1.hash(), s2.hash());
         assert(s1.isSame(s2));
       });
+
+      it('should have .data()', function() {
+        var s1 = h.allocString('hello world1');
+        var s2 = h.allocString('hello world1');
+        assert.equal(s1.data().slice(0, s1.length()).toString(),
+                     s1.toString());
+      });
     });
   });
 
