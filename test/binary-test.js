@@ -24,7 +24,13 @@ describe('Binary', function() {
     it('should work with strings', function() {
       var left = h.allocString('hello ');
       var right = h.allocString('world!');
-      assert.equal(left.add(right).toString(), 'hello world!');
+      assert.equal(left.add(right).value(), 'hello world!');
+    });
+
+    it('should work with number/string', function() {
+      var left = h.smi(123);
+      var right = h.allocString('ok');
+      assert.equal(left.add(right).value(), '123ok');
     });
   });
 });

@@ -26,7 +26,7 @@ describe('GC', function() {
         });
 
         assert(h.gc());
-        assert.equal(obj.get(h.allocString('key')).cast().toString(),
+        assert.equal(obj.get(h.allocString('key')).cast().value(),
                      'alright');
       });
     });
@@ -59,7 +59,7 @@ describe('GC', function() {
         assert(h.gc());
         var slot = code.readSlot(code.offsets()[0]).cast();
         var val = slot.get(h.allocString('b'));
-        assert.equal(val.cast().toString(), 'c');
+        assert.equal(val.cast().value(), 'c');
 
         var other = code.readSlot(code.weakOffsets()[0]).cast();
         assert(other.isSame(slot));

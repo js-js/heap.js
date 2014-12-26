@@ -51,8 +51,7 @@ describe('Entities', function() {
       it('should have .data()', function() {
         var s1 = h.allocString('hello world1');
         var s2 = h.allocString('hello world1');
-        assert.equal(s1.data().slice(0, s1.length()).toString(),
-                     s1.toString());
+        assert.equal(s1.data().slice(0, s1.length()).toString(), s1.value());
       });
     });
   });
@@ -116,7 +115,7 @@ describe('Entities', function() {
 
         var pairs = [];
         o.iterate(function(key, val) {
-          pairs.push({ key: key.cast().toString(), value: val.cast().value() });
+          pairs.push({ key: key.cast().value(), value: val.cast().value() });
         });
         pairs.sort(function(a, b) {
           return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
@@ -138,7 +137,7 @@ describe('Entities', function() {
 
         var pairs = [];
         o.iterate(function(key, val) {
-          pairs.push({ key: key.cast().toString(), value: val.cast().value() });
+          pairs.push({ key: key.cast().value(), value: val.cast().value() });
         });
         pairs.sort(function(a, b) {
           return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
@@ -308,7 +307,7 @@ describe('Entities', function() {
           h.allocString('hello'),
           h.allocString('ohai')
         ]);
-        assert.equal(r.cast().toString(), 'ohai');
+        assert.equal(r.cast().value(), 'ohai');
       });
 
       it('should invoke assembly code via wrapper', function() {
@@ -357,7 +356,7 @@ describe('Entities', function() {
           h.allocString('hello'),
           h.allocString('ohai')
         ]);
-        assert.equal(r.cast().toString(), 'ohai');
+        assert.equal(r.cast().value(), 'ohai');
       });
     });
 
@@ -368,7 +367,7 @@ describe('Entities', function() {
         assert(fn.map().isFunction());
 
         var prop = fn.get(h.allocString('key')).cast();
-        assert.equal(prop.toString(), 'value');
+        assert.equal(prop.value(), 'value');
       });
     });
   });

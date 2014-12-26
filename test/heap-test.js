@@ -44,7 +44,7 @@ describe('Heap', function() {
     it('should allocate string', function() {
       var s = h.allocString('hello world');
       assert.equal(s.length(), 11);
-      assert.equal(s.toString(), 'hello world');
+      assert.equal(s.value(), 'hello world');
       assert.equal(s.hash(), 1590860647);
     });
   });
