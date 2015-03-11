@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 
+namespace node {
 namespace heap {
 
-using node::Buffer;
 using v8::Array;
 using v8::Handle;
 using v8::Int32;
@@ -62,8 +62,6 @@ static void DontDealloc(char* data, void* hint) {
 
 
 NAN_METHOD(ReadTagged) {
-  NanEscapableScope();
-
   if (args.Length() < 2 ||
       !Buffer::HasInstance(args[0]) ||
       !args[1]->IsNumber()) {
@@ -81,7 +79,7 @@ NAN_METHOD(ReadTagged) {
       return NanThrowError("Invalid untagged number");
 
     Local<Int32> n = NanNew<Int32, uint32_t>(res >> 1);
-    return NanEscapeScope(n);
+    NanReturnValue(n);
   }
 
   // Tagged
@@ -89,7 +87,7 @@ NAN_METHOD(ReadTagged) {
 
   // We don't know the length of the buffer ahead of time, so just assume that
   // it is almost infinite :)
-  return NanEscapeScope(NanNewBufferHandle(
+  NanReturnValue(NanNewBufferHandle(
       reinterpret_cast<char*>(static_cast<intptr_t>(res)),
       0x3fffffff,
       DontDealloc,
@@ -126,7 +124,7 @@ NAN_METHOD(WriteInterior) {
 
 
 NAN_METHOD(ReadInterior) {
-  NanEscapableScope();
+  NanScope();
 
   if (args.Length() < 3 ||
       !Buffer::HasInstance(args[0]) ||
@@ -144,7 +142,7 @@ NAN_METHOD(ReadInterior) {
 
   // We don't know the length of the buffer ahead of time, so just assume that
   // it is almost infinite :)
-  return NanEscapeScope(NanNewBufferHandle(
+  NanReturnValue(NanNewBufferHandle(
       reinterpret_cast<char*>(static_cast<intptr_t>(res)),
       0x3fffffff,
       DontDealloc,
@@ -189,7 +187,7 @@ static uint64_t* GetMarkingWord(char* ptr,
 
 
 NAN_METHOD(ReadMark) {
-  NanEscapableScope();
+  NanScope();
 
   if (args.Length() < 3 ||
       !Buffer::HasInstance(args[0]) ||
@@ -214,7 +212,7 @@ NAN_METHOD(ReadMark) {
   res &= (1 << bit_count) - 1;
 
   Local<Number> result = NanNew<Number, uint32_t>(res);
-  return NanEscapeScope(result);
+  NanReturnValue(result);
 }
 
 
@@ -255,7 +253,7 @@ NAN_METHOD(WriteMark) {
 
 
 NAN_METHOD(Call) {
-  NanEscapableScope();
+  NanScope();
 
   typedef intptr_t (*Cb0)();
   typedef intptr_t (*Cb1)(intptr_t);
@@ -337,20 +335,20 @@ NAN_METHOD(Call) {
 
   if ((res & kTagMask) == kTagPointer) {
     res ^= kTagPointer;
-    return NanEscapeScope(NanNewBufferHandle(
+    NanReturnValue(NanNewBufferHandle(
         reinterpret_cast<char*>(res),
         0x3fffffff,
         DontDealloc,
         NULL));
   } else {
     Local<Int32> n = NanNew<Int32, int32_t>(res >> 1);
-    return NanEscapeScope(n);
+    NanReturnValue(n);
   }
 }
 
 
 NAN_METHOD(PointerAdd) {
-  NanEscapableScope();
+  NanScope();
 
   if (args.Length() < 3 ||
       !Buffer::HasInstance(args[0]) ||
@@ -365,7 +363,7 @@ NAN_METHOD(PointerAdd) {
   int32_t size = args[2]->Int32Value();
 
   if (*pos + size > *limit)
-    return NanFalse();
+    NanReturnValue(NanFalse());
 
   intptr_t res = *pos;
   assert(res & kTagPointer);
@@ -374,7 +372,7 @@ NAN_METHOD(PointerAdd) {
   if (size % kAlign != 0)
     *pos += kAlign - size % kAlign;
 
-  return NanEscapeScope(NanNewBufferHandle(
+  NanReturnValue(NanNewBufferHandle(
       reinterpret_cast<char*>(res),
       size,
       DontDealloc,
@@ -403,6 +401,7 @@ static void Initialize(Handle<Object> target) {
   NODE_SET_METHOD(target, "pointerAdd", PointerAdd);
 }
 
-NODE_MODULE(heap, Initialize);
-
 }  // namespace heap
+}  // namespace node
+
+NODE_MODULE(heap, node::heap::Initialize);
